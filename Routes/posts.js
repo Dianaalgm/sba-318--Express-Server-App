@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-//middleware for posts,js
+//MIDDLEWARE for posts.js-------------
 router.use((req,res,next)=>{
     next();
 });

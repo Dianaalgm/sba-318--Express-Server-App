@@ -5,7 +5,11 @@ const express = require('express') ;
 const app = express() ;
 const PORT = '3000' ;
 const fs = require('fs')
-// const bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ extended: true }));
+
 
 //Creating a template with fs Library----------
 app.engine("template",(filePath,options,callback)=>{
@@ -21,10 +25,24 @@ app.engine("template",(filePath,options,callback)=>{
     });
 });
 
+app.get("/",(req,res)=>{
+    let options = {
+        title: "Welcome user!" ,
+        content: "This is my View Engine Template!"
+    }
+    res.render('index',options)
+});
 
+//Random data---POST
+let categories = [
+    { id: 1, name: 'Samantha', age: 28},
+    { id: 2, name: 'Greg', age:34 },
+  ];
+  
+  let items = [categories];
 
 //Middleware--------------------------------------------
-
+app.use(bodyParser.json());
 // app.use(bodyParser.json());
 // Handle PUT request to update a profile
 // app.get("/profile",(req,res)=>{
@@ -36,9 +54,9 @@ app.engine("template",(filePath,options,callback)=>{
 //     res.status(200).json({ message: 'Resource updated successfully' });
 // });
 
-//three different categories seperated in the module Routes--
-const userRoutes = require("./Routes/user");
-app.use("/user", userRoutes)
+//three different categories seperated in the module Routes-----
+const user = require("./Routes/user");
+app.use("/user", user)
 const commentRoutes = require("./Routes/comments");
 app.use("/comment", commentRoutes)
 const postRoutes = require("./Routes/posts");
@@ -50,9 +68,33 @@ app.use((err,req,res,next) => {
 });
 
 //GET routes---------------------------------------
-app.get("/",(req,res)=>{
-    res.send("Welcome to the homepage!")
-});
+// app.get("/api/users", (req, res) => {
+//     res.json(users);
+//   });
+// // ----------------------> Gets all Users
+  
+//   app.get("/users/:id", (req, res) => {         //<-------------Params
+//     const user = users.find((u) => u.id == req.params.id);
+//     if (user) res.json(user);
+//   });
+
+
+// GET route to retrieve all items
+app.get('/items', (req, res) => {
+    res.json(items);
+  });
+  
+// POST route to create new items
+  app.post('/items', (req, res) => {
+    const newItem = req.body;
+    items.push(newItem);
+  
+    res.status(201).json({ message: 'Item created successfully', newItem });
+  });
+
+// app.get("/",(req,res)=>{
+//     res.send("Welcome to the homepage!")
+// });
 app.get("/about",(req,res)=>{
     res.send("About us")
 });
@@ -60,12 +102,6 @@ app.get("/contact",(req,res)=>{
     res.send("Get in contact with us!")
 });
 
-app.get("/",(req,res)=>{
-    let options = {
-        title: "" ,
-        content: ""
-    }
-})
 
 //setting up the Template Engine
 app.set("views","./views"); //specify the views
